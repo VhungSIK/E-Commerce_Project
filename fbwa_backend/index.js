@@ -1,19 +1,18 @@
+// app.js
+
 const express = require('express');
-const authRoutes = require('./routes/auth'); // Đảm bảo đường dẫn đúng
-const categoryRoutes = require('./routes/category'); // Import route cho category
+const authRoutes = require('./routes/auth');
+const categoryRoutes = require('./routes/category');
+const userRoutes = require('./routes/user');
 const app = express();
 const PORT = process.env.PORT || 4000;
 require('dotenv').config();
 const fs = require('fs');
 const path = require('path');
-const userRoutes = require('./routes/user');
 
-
+// Middleware để phân tích JSON
 app.use(express.json());
-app.use('/api/user', userRoutes);
-app.use('/api/auth', authRoutes);
-app.use('/api/user', userRoutes);
-app.use('/api/category', categoryRoutes);
+
 // Kiểm tra và tạo thư mục uploads nếu chưa tồn tại
 const uploadDir = path.join(__dirname, 'uploads');
 if (!fs.existsSync(uploadDir)) {
@@ -21,15 +20,15 @@ if (!fs.existsSync(uploadDir)) {
   console.log('Thư mục uploads đã được tạo.');
 }
 
-// Đặt middleware express.json() ở đây, trước khi sử dụng các route
-app.use(express.json());
+// Cấu hình để phục vụ tệp tĩnh
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-// Sử dụng các route đã định nghĩa trong routes/auth.js và category.js
-app.use('/api', authRoutes);
-app.use('/api/category', categoryRoutes); // Sử dụng route cho danh mục
+// Định nghĩa routes
+app.use('/api/auth', authRoutes);
+app.use('/api/user', userRoutes);        // Routes cho người dùng
+app.use('/api/category', categoryRoutes); // Routes cho danh mục
 
-// Bắt lỗi 404
+// Bắt lỗi 404 (Đặt sau tất cả các routes)
 app.use((req, res, next) => {
   res.status(404).json({ message: 'Route không tồn tại.' });
 });
@@ -40,10 +39,9 @@ app.use((err, req, res, next) => {
   res.status(500).json({ message: 'Đã xảy ra lỗi trên server.' });
 });
 
-// Thiết lập kết nối đến SQL Server một lần duy nhất
-const { sql, poolPromise } = require('./db'); // Import từ db.js
+// Kết nối cơ sở dữ liệu và khởi động server
+const { sql, poolPromise } = require('./db');
 
-// Khởi động server sau khi kết nối cơ sở dữ liệu thành công
 poolPromise.then(() => {
   app.listen(PORT, () => {
     console.log(`Server chạy trên cổng ${PORT}`);

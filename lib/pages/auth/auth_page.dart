@@ -1,5 +1,3 @@
-// lib/pages/auth/auth_page.dart
-
 import 'package:flutter/material.dart';
 
 class AuthPage extends StatelessWidget {
@@ -8,51 +6,63 @@ class AuthPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('FBWA App'),
-      ),
+      // Loại bỏ AppBar để giao diện nhất quán với các trang đăng nhập và đăng ký
       body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(horizontal: 32.0),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
+              // Logo hoặc biểu tượng
+              const Icon(
+                Icons.ac_unit, // Thay bằng logo ứng dụng của bạn
+                size: 100,
+                color: Colors.blue,
+              ),
+              const SizedBox(height: 40),
+              // Tiêu đề
+              const Text(
+                'Chào mừng đến với FBWA',
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 40),
               // Nút Đăng ký
               ElevatedButton(
                 onPressed: () {
                   Navigator.pushNamed(context, '/register');
                 },
                 style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 30),
-                  textStyle: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  minimumSize: const Size(double.infinity, 50),
+                  backgroundColor: Colors.blue,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(30.0),
                   ),
-                  backgroundColor: const Color.fromARGB(255, 225, 232, 237), // Màu nền nhạt
                 ),
-                child: const Text('Đăng ký'),
+                child: const Text(
+                  'Đăng ký',
+                  style: TextStyle(fontSize: 18, color: Colors.white),
+                ),
               ),
               const SizedBox(height: 20),
               // Nút Đăng nhập
-              ElevatedButton(
+              OutlinedButton(
                 onPressed: () {
                   Navigator.pushNamed(context, '/login');
                 },
-                style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 30),
-                  textStyle: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
+                style: OutlinedButton.styleFrom(
+                  minimumSize: const Size(double.infinity, 50),
+                  side: const BorderSide(color: Colors.blue),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(30.0),
                   ),
-                  backgroundColor: const Color.fromARGB(255, 225, 232, 237), // Màu nền nhạt
                 ),
-                child: const Text('Đăng nhập'),
+                child: const Text(
+                  'Đăng nhập',
+                  style: TextStyle(fontSize: 18, color: Colors.blue),
+                ),
               ),
             ],
           ),

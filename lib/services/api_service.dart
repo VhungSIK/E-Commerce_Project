@@ -3,68 +3,70 @@ import 'dart:io';
 import 'package:http/http.dart' as http;
 
 class ApiService {
-  static const String baseUrl = 'http://10.0.2.2:4000'; // Địa chỉ của backend
-
   // Đăng ký người dùng
-   static Future<Map<String, dynamic>> registerUser({
-    required String username,
-    required String email,
-    required String password,
-  }) async {
-    try {
-      final response = await http.post(
-        Uri.parse('http://10.0.2.2:4000/api/register'),
-        headers: {'Content-Type': 'application/json'},
-        body: json.encode({
-          'username': username,
-          'email': email,
-          'password': password,
-        }),
-      );
+static const String baseUrl = 'http://10.0.2.2:4000'; // Địa chỉ của backend
 
-      final responseBody = json.decode(utf8.decode(response.bodyBytes));
+// Đăng ký người dùng
+static Future<Map<String, dynamic>> registerUser({
+  required String username,
+  required String email,
+  required String password,
+}) async {
+  try {
+    final response = await http.post(
+      Uri.parse('$baseUrl/api/auth/register'), // Đường dẫn đúng
+      headers: {'Content-Type': 'application/json'},
+      body: json.encode({
+        'username': username,
+        'email': email,
+        'password': password,
+      }),
+    );
 
-      return {
-        'statusCode': response.statusCode,
-        'body': responseBody,
-      };
-    } catch (e) {
-      print('Lỗi khi kết nối tới API: $e');
-      return {
-        'statusCode': 500,
-        'body': {'message': 'Lỗi kết nối tới API'}
-      };
-    }
+    final responseBody = json.decode(utf8.decode(response.bodyBytes));
+
+    return {
+      'statusCode': response.statusCode,
+      'body': responseBody,
+    };
+  } catch (e) {
+    print('Lỗi khi kết nối tới API: $e');
+    return {
+      'statusCode': 500,
+      'body': {'message': 'Lỗi kết nối tới API'}
+    };
   }
+}
 
-  static Future<Map<String, dynamic>> loginUser({
-    required String email,
-    required String password,
-  }) async {
-    try {
-      final response = await http.post(
-        Uri.parse('http://10.0.2.2:4000/api/login'),
-        headers: {'Content-Type': 'application/json'},
-        body: json.encode({
-          'email': email,
-          'password': password,
-        }),
-      );
+// Đăng nhập người dùng
+static Future<Map<String, dynamic>> loginUser({
+  required String email,
+  required String password,
+}) async {
+  try {
+    final response = await http.post(
+      Uri.parse('$baseUrl/api/auth/login'), // Đường dẫn đúng
+      headers: {'Content-Type': 'application/json'},
+      body: json.encode({
+        'email': email,
+        'password': password,
+      }),
+    );
 
-      final responseBody = json.decode(utf8.decode(response.bodyBytes));
+    final responseBody = json.decode(utf8.decode(response.bodyBytes));
 
-      return {
-        'statusCode': response.statusCode,
-        'body': responseBody,
-      };
-    } catch (e) {
-      print('Lỗi khi kết nối tới API: $e');
-      return {
-        'statusCode': 500,
-        'body': {'message': 'Lỗi kết nối tới API'}
-      };
-    }
+    return {
+      'statusCode': response.statusCode,
+      'body': responseBody,
+    };
+  } catch (e) {
+    print('Lỗi khi kết nối tới API: $e');
+    return {
+      'statusCode': 500,
+      'body': {'message': 'Lỗi kết nối tới API'}
+    };
   }
+}
 
   // Phương thức lấy thông tin người dùng chi tiết (nếu cần)
   static Future<Map<String, dynamic>?> getUserDetails(String token) async {

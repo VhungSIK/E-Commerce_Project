@@ -8,66 +8,73 @@ const { sql, poolPromise } = require('../db');
 const authenticate = require('../middleware/authenticate');
 require('dotenv').config();
 
-// Endpoint Đăng nhập Người dùng
-router.post('/login', async (req, res) => {
-  const { email, password } = req.body;
+// Endpoint Đăng ký Người dùng
+router.post('/register', async (req, res) => {
+  const { username, email, password } = req.body;
 
   // Kiểm tra các trường bắt buộc
-  if (!email || !password) {
-    return res.status(400).json({ message: 'Vui lòng nhập email và mật khẩu.' });
+  if (!username || !email || !password) {
+    return res.status(400).json({ message: 'Vui lòng nhập đầy đủ thông tin.' });
   }
 
   try {
     const pool = await poolPromise;
 
-    // Lấy thông tin người dùng từ email
+    // Kiểm tra xem email đã tồn tại chưa
     const userResult = await pool.request()
       .input('Email', sql.NVarChar, email)
-      .query('SELECT * FROM Users WHERE Email = @Email AND IsActive = 1');
+      .query('SELECT * FROM Users WHERE Email = @Email');
 
-    if (userResult.recordset.length === 0) {
-      return res.status(400).json({ message: 'Email không tồn tại hoặc tài khoản đã bị vô hiệu hóa.' });
+    if (userResult.recordset.length > 0) {
+      return res.status(400).json({ message: 'Email đã được sử dụng.' });
     }
 
-    const user = userResult.recordset[0];
+    // Hash mật khẩu
+    const hashedPassword = await bcrypt.hash(password, 10);
 
-    // So sánh mật khẩu
-    const isMatch = await bcrypt.compare(password, user.PasswordHash);
-    if (!isMatch) {
-      return res.status(400).json({ message: 'Mật khẩu không chính xác.' });
-    }
+    // Thêm người dùng vào cơ sở dữ liệu
+    const insertUser = await pool.request()
+      .input('Username', sql.NVarChar, username)
+      .input('Email', sql.NVarChar, email)
+      .input('PasswordHash', sql.NVarChar, hashedPassword)
+      .query(`
+        INSERT INTO Users (Username, Email, PasswordHash, IsActive)
+        VALUES (@Username, @Email, @PasswordHash, 1);
+        SELECT SCOPE_IDENTITY() AS UserID;
+      `);
 
-    // Lấy vai trò của người dùng
-    const roleResult = await pool.request()
-      .input('UserID', sql.Int, user.UserID)
-      .query('SELECT RoleName FROM Roles r INNER JOIN UserRoles ur ON r.RoleID = ur.RoleID WHERE ur.UserID = @UserID');
+    const newUserId = insertUser.recordset[0].UserID;
 
-    const role = roleResult.recordset.length > 0 ? roleResult.recordset[0].RoleName : 'user';
+    // Gán vai trò mặc định cho người dùng (ví dụ: 'user')
+    const defaultRoleId = 1; // Đảm bảo RoleID cho 'user' là 1 trong bảng Roles
+    await pool.request()
+      .input('UserID', sql.Int, newUserId)
+      .input('RoleID', sql.Int, defaultRoleId)
+      .query(`
+        INSERT INTO UserRoles (UserID, RoleID)
+        VALUES (@UserID, @RoleID);
+      `);
 
     // Tạo token JWT
     const token = jwt.sign(
-      { userId: user.UserID, email: user.Email, role },
+      { userId: newUserId, email, role: 'user' },
       process.env.JWT_SECRET,
       { expiresIn: process.env.JWT_EXPIRES_IN }
     );
 
-    // Log token tại đây (chỉ nên làm trong môi trường phát triển)
-    console.log(`User ID: ${user.UserID} đã đăng nhập thành công. Token: ${token}`);
-
-    res.status(200).json({
+    res.status(201).json({
       token,
-      userId: user.UserID,
-      username: user.Username,
-      role
+      userId: newUserId,
+      username,
+      role: 'user'
     });
   } catch (err) {
-    console.error('Lỗi khi đăng nhập:', err);
+    console.error('Lỗi khi đăng ký:', err);
     res.status(500).json({ message: 'Lỗi server: ' + err.message });
   }
 });
 
-
-// Endpoint Đăng nhập Người dùng
+// Endpoint Đăng nhập Người dùng (Chỉ giữ lại một định nghĩa)
 router.post('/login', async (req, res) => {
   const { email, password } = req.body;
 

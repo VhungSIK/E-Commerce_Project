@@ -11,6 +11,7 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+
   bool _isLoading = false;
 
   Future<void> _loginUser() async {
@@ -48,29 +49,87 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Đăng nhập')),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
-        child: _isLoading
-            ? const Center(child: CircularProgressIndicator())
-            : Column(
-                children: [
-                  TextField(
-                    controller: _emailController,
-                    decoration: const InputDecoration(labelText: 'Email'),
-                  ),
-                  TextField(
-                    controller: _passwordController,
-                    decoration: const InputDecoration(labelText: 'Mật khẩu'),
-                    obscureText: true,
-                  ),
-                  const SizedBox(height: 20),
-                  ElevatedButton(
-                    onPressed: _loginUser,
-                    child: const Text('Đăng nhập'),
-                  ),
-                ],
-              ),
+      // Xóa AppBar để giao diện giống với Twitter
+      body: Center(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(horizontal: 32.0),
+          child: _isLoading
+              ? const CircularProgressIndicator()
+              : Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    // Logo hoặc biểu tượng
+                    const Icon(
+                      Icons.ac_unit, // Thay bằng logo ứng dụng của bạn
+                      size: 100,
+                      color: Colors.blue,
+                    ),
+                    const SizedBox(height: 40),
+                    // Tiêu đề
+                    const Text(
+                      'Đăng nhập vào FBWA',
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 40),
+                    // Trường nhập email
+                    TextField(
+                      controller: _emailController,
+                      decoration: InputDecoration(
+                        labelText: 'Email',
+                        prefixIcon: const Icon(Icons.email),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(30.0),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    // Trường nhập mật khẩu
+                    TextField(
+                      controller: _passwordController,
+                      decoration: InputDecoration(
+                        labelText: 'Mật khẩu',
+                        prefixIcon: const Icon(Icons.lock),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(30.0),
+                        ),
+                      ),
+                      obscureText: true,
+                    ),
+                    const SizedBox(height: 20),
+                    // Nút Đăng nhập
+                    ElevatedButton(
+                      onPressed: _loginUser,
+                      style: ElevatedButton.styleFrom(
+                        minimumSize: const Size(double.infinity, 50),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(30.0),
+                        ),
+                      ),
+                      child: const Text(
+                        'Đăng nhập',
+                        style: TextStyle(fontSize: 18),
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    // Liên kết đến trang Đăng ký
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Text('Chưa có tài khoản?'),
+                        TextButton(
+                          onPressed: () {
+                            Navigator.pushNamed(context, '/register');
+                          },
+                          child: const Text('Đăng ký ngay'),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+        ),
       ),
     );
   }
